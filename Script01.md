@@ -1,41 +1,37 @@
----
-title: "Activity assay of 3D HPLC fractions for James"
-author: "Jan Sklenar"
-date: "22/5/2021"
-output: html_document
-editor_options: 
-  chunk_output_type: console
-chunk_output_type: console
----
+Activity assay of 3D HPLC fractions RNAseAlert assay for James
+================
+Jan Sklenar
+22/5/2021
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,results = "hide")
-```
+## Goals
 
-## Goals	
-Visualize and compare the activity profiles of purified  extract. Samples are parallel 3D HPLC separations yielding  sets of fractions. Measurements of each fraction are carried out in relicates (n=4).  
-	
-	
-## Protocol	
+Compare the activity profiles of purified aphid extract.Fractions are
+from 3D LC fractionation.
 
-- Extraction 
-- Preseparation steps	
-- 3D LC separation
-- Activity assay - gene expression  
+## Details
 
-The activity of fractions are visualized here.
-	
+-   
+-   
+-   
 
+<!-- -->
 
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 
-```{r libraries, echo=FALSE, include=TRUE}
-library("tidyverse")
-library("ggplot2")
-```
+    ## v ggplot2 3.3.3     v purrr   0.3.4
+    ## v tibble  3.1.2     v dplyr   1.0.6
+    ## v tidyr   1.1.3     v stringr 1.4.0
+    ## v readr   1.4.0     v forcats 0.5.1
+
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
 
 ## Data preparation
-### Read data into R  
-```{r data, echo=TRUE, include=TRUE}
+
+### Read data into R
+
+``` r
 ## read in raw data and some annotation
 setwd("C:/0_R/210522_James_activity/")
 raw <- read.csv("data/summary_18-05-21_edit_ACTIVITY.csv", skip = 7, stringsAsFactors = FALSE)
@@ -47,12 +43,11 @@ tail(raw)
 # get rid of NAs
 #raw <- raw[complete.cases(raw),]
 dim(raw)
-
 ```
 
 ### Rename columns
 
-```{r rename, echo=TRUE, include=TRUE}
+``` r
 #mynames <- c("Reading","MeasTimeSec",
 #             paste(rep("reaction_1",4),"-",seq(1:4)),
 #             paste(rep("reaction_2",4),"-",seq(1:4)),
@@ -73,64 +68,42 @@ mydata
 df <- raw[,mydata]
 dim(df)
 dim(df[complete.cases(df),])
-
 ```
 
-
 ### Common annotations to be used in plots
-Sample names and  conditions for plot legends.
-```{r}
+
+Sample names and conditions for plot legends.
+
+``` r
 title  <- "3D-LC fractions"
 mysubtitle <- "May 2021"
 name <- "replicates:"
 IDs <- as.character(seq(1:4))
-mycolours <- c("yellow","red","blue","green")#,"lightblue2","lightblue3")
+mycolours <- c("black","red","blue","green")#,"lightblue2","lightblue3")
 mylabels <-  c("one",
              "two",
              "three",
              "four")
 mylabels <- paste(IDs, mylabels, sep=": ")
 names(mylabels) <- IDs
-
-
-
-
 ```
+
 <!---
 ### Calculations of RNA concentration
 -->
-```{r include=FALSE, echo=FALSE, eval=FALSE}
-# ## Calculation of target RNA concentration
-# #   To the reaction in one well, here 25ul, we add 1ul of RNA. 
-# #   Since the target concetration is in ng/ul, then 
-# ng <- c(10,1,0.1,0.01,0.001)
-# nmol <- ng/53000
-# pM <- 1e9*nmol/25  #nmol/ul...umol/ml...mmol/l...mM...x1e9=>pM
-# cop <- nmol/1E9*6E23
-# 
-# 
-# ng <- formatC(ng,format = "g", digits = 3)
-# nmol <- formatC(nmol,format = "e", digits = 1)
-# pM <- formatC(pM,format = "g", digits = 1)
-# cop <- formatC(cop,format = "e", digits = 0)
-# 
-# ## per reaction
-# data.frame("ng"=ng,"nmol"=nmol,"pM"=pM,"copy number"=cop)
-```
 
 ### Conversion to a long data format
-```{r long, echo=TRUE, include=TRUE}
 
+``` r
 df_long <- gather(df, key = "Sample", value = "RFU", -"min")
 head(df_long)
 table(is.na(df_long))
 #df[is.na(df),]
-
 ```
 
-
 ### Parse the sample names to create variables
-```{r include=TRUE, echo=TRUE, eval=TRUE}
+
+``` r
 #' remove columns if necessary
 colnames(df_long)
 
@@ -163,11 +136,9 @@ unique(df_long$SampleNo)
 head(df_long)
 ```
 
-
-
-
 ### Subset of data for plotting if necessary
-```{r cleaned data}
+
+``` r
 # # Selected (cleaned) data contains only columns needed for plotting
 # # Well, Sample, SampleNo, RepNo, MeasTimeSec, RFU
 # colnames(df)
@@ -176,12 +147,13 @@ head(df_long)
 # # there should be no missing values
 # table(is.na(df))
 # df[!complete.cases(df),]
-
-
 ```
+
 ## Plots
+
 ### All the data
-```{r plots, eval=TRUE, include=TRUE, echo=TRUE}
+
+``` r
 # all the data
 head(df_long)
 #plot(x=df_long$min,y=df$RFU)
@@ -191,13 +163,23 @@ ggplot(data = df_long) +
   aes(x = min, y=RFU) +
   geom_point(aes(color=SampleNo)) +
   scale_color_discrete(name=name, breaks=IDs, labels=mylabels)
+```
 
+![](Script01_files/figure-gfm/plots-1.png)<!-- -->
+
+``` r
 ggplot(data = df_long) + 
   aes(x = min, y=RFU) +
   geom_smooth(aes(color=SampleNo), method = 'gam',se=T, level=0.95) + 
   geom_point(aes(color=RepNo), alpha=1/50) +
   facet_wrap(~FracNo, scales = "fixed")
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/plots-2.png)<!-- -->
+
+``` r
 ggplot(data = df_long) + 
   aes(x = min, y=RFU) +
   geom_smooth(aes(color=SampleNo), method = 'gam',se=T, level=0.95) + scale_color_manual(values = mycolours) + 
@@ -205,14 +187,17 @@ ggplot(data = df_long) +
   #scale_color_manual(values = mycolours) + 
   scale_fill_manual(values = mycolours) + 
   facet_grid(SampleNo~FracNo, scales = "fixed")
-
-
 ```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/plots-3.png)<!-- -->
 
 ### Data adjustments if necessary
+
 Removal of bad replicates and outliers
-```{r final result, include=TRUE, eval=TRUE, echo=TRUE}
+
+``` r
 ## Adjustments - remove outliers if necessary
 
 ## Sometimes samples needs to be combined...
@@ -269,88 +254,134 @@ table(is.na(df_long_clean))
 ```
 
 ### Panels of plots
-```{r}
+
+``` r
 ## LOESS regression,
 
 p <- ggplot(data = df_long) + 
   aes(x = min, y=RFU) +
   geom_smooth(aes(color=SampleNo), method = 'gam',se=T, level=0.95) #+geom_point(aes(colour=RepNo))
 p
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
 ## Panel of plots fixed scale
 p+facet_wrap(~FracNo, scales = "free_y") + #coord_cartesian(xlim = c(0,500)) +
   labs(title = title, x = "min", y = "RFU") +
   scale_colour_discrete(name=name, breaks=IDs, labels=mylabels)
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
 ## Panel of plots of Fractions - zoomed
 p+facet_wrap(~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU") +
   scale_colour_discrete(name=name, breaks=IDs, labels=mylabels)
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+
+``` r
 ## Panel of plots of Fractions - zoomed
 # adding the actual points
 p + geom_point(aes(colour=SampleNo), size = 1, alpha=1/10) + facet_wrap(~FracNo, scales = "fixed") +  coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU") +
   scale_colour_discrete(name=name, breaks=IDs, labels=mylabels)
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
+
+``` r
 ## Grid of plots of Samples~Fractions - zoomed
 p + facet_grid(SampleNo~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU") +
   scale_colour_discrete(name=name, breaks=IDs, labels=mylabels) +
 theme(axis.text.x = element_text(angle=90))
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
 
+![](Script01_files/figure-gfm/unnamed-chunk-4-5.png)<!-- -->
+
+``` r
 ## With data points
 q <- ggplot(data = df_long) + #[df_long$FracNo=="F25",]) + 
   aes(x = min, y=RFU) +
   geom_smooth(aes(color=FracNo), method = "gam") + geom_point(aes(colour=SampleNo), alpha=1/30) +
   theme(axis.text.x = element_text(angle=90))
 q
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-4-6.png)<!-- -->
+
+``` r
 ## Panel of plots of Fractions - zoomed, samples combined
 q+facet_wrap(~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU")
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-4-7.png)<!-- -->
+
+``` r
 q+facet_grid(SampleNo~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU") + 
   theme(axis.text.x = element_text(angle=90))
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
 
+![](Script01_files/figure-gfm/unnamed-chunk-4-8.png)<!-- -->
 
-
+``` r
 ## Sums for comparision
 
 ggplot(data = df_long) +aes(x=FracNo, y=RFU)+ geom_col(aes(color=SampleNo))
+```
 
- ```
-
-
-### Observations 
-
-- Despite the signal magnitude is quite reproducible, we observe the differnet expression profiles among the replicates (of the same fraction). For that reason many data point do not fall into 95% the confidence intervals. 
-
- - Summing up averages hides the differences in the data - it is a general problem that many small values can hide a  peak! For that reason, it seems better to sum the replicates, then take average/smooth with the other replicates.  
-There is a MS technique we use; when we trust our signal we acquire and sum up enough spectra to suppress the noise. Then we can take several of such measurements for error calculation.
-
-- It is better to show the peaks in an array of plots than the sums.
-
-- We can also observe and compare the individual replicates. They are not always exactly the same.
-
------
-  
-### Some more playing with the data
-
-```{r, echo=TRUE}
-#head(df,10)
-head(df_long,10)
-library("dplyr")
-df_long_sum <- df_long %>% group_by(SampleNo,FracNo,min) %>% summarise(RFU=sum(RFU, na.rm = TRUE))
+![](Script01_files/figure-gfm/unnamed-chunk-4-9.png)<!-- --> \#\#\#
+Plotting activity as measured provides fine details
 
 
+    ### Observation: 
+
+    - The replicates are not exactly the same as for gene expression profile, despite the signal magnitude is reproducible. For that reason the most of the data do not fall into 95% the confidence intervals. 
+
+     - Summing up averages hides the differences in the data - it is a general problem that many small values can hide a  peak! For that reason, it seems better to sum the replicates, then take average/smooth with the other replicates.  
+    This is an MS technique; when we trust our signal we acquire and sum up enough spectra to suppress the noise. Then we can take several of such measurements for error calculation.
+
+    - It is better to show the peaks in an array of plots than the sums.
+
+    - We can also observe and compare the individual replicates. They are not always exactly the same.
+
+
+    ```r
+    #head(df,10)
+    head(df_long,10)
+    library("dplyr")
+    df_long_sum <- df_long %>% group_by(SampleNo,FracNo,min) %>% summarise(RFU=sum(RFU, na.rm = TRUE))
+
+    ## `summarise()` has grouped output by 'SampleNo', 'FracNo'. You can override using the `.groups` argument.
+
+``` r
 ## With data points
 q <- ggplot(data = df_long_sum) + #[df_long$FracNo=="F25",]) + 
   aes(x = min, y=RFU) +
@@ -362,24 +393,34 @@ q <- ggplot(data = df_long_sum) + #[df_long$FracNo=="F25",]) +
 q+facet_wrap(~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU")
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
 q+facet_grid(SampleNo~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU") +
   theme(axis.text.x = element_text(angle = 90)) 
+```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
+
+![](Script01_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
 q+facet_grid(SampleNo~FracNo, scales = "fixed") +
   coord_cartesian(xlim = c(0,600)) +
   labs(title = title, x = "min", y = "RFU") +
   theme(axis.text.x = element_text(angle = 90)) +
   geom_point(aes(colour=SampleNo), alpha=1/30)
-
 ```
 
+    ## `geom_smooth()` using formula 'y ~ s(x, bs = "cs")'
 
-
-
-
+![](Script01_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
 
 <!-- #  -->
 <!-- #  -->
@@ -430,8 +471,6 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!-- #  -->
 <!-- #  -->
 <!-- \ print(p$plots) -->
-
-
 <!-- # this writes regression equation -->
 <!-- lm_eq <- function(df,x,y){ -->
 <!--     m <- lm(y ~ x, df); -->
@@ -442,28 +481,20 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!--     as.expression(eq); # this works for title/subtitle -->
 <!--     # as.character(as.expression(eq)); # this works for geom_text -->
 <!-- } -->
-
-
 <!-- p <- df %>% group_by(SampleNo) %>% do(plots=ggplot(data=.) + -->
 <!--          aes(x=MeasTimeMin, y=RFU) +  -->
 <!--            geom_point() +  -->
 <!--            geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) + -->
 <!--            ggtitle(mylabels[unique(.$SampleNo)], subtitle = lm_eq(.,.$MeasTimeMin,.$RFU))) -->
 <!--           # geom_text(x = 25, y = 300, label = lm_eq(., .$MeasTimeSec, .$RFU), parse = TRUE)) -->
-
 <!-- # print plots held by the object p -->
 <!-- #print(p$plots[1]) -->
 <!-- print(p$plots) -->
-
-
 <!-- r <- df %>% group_by(SampleNo, RepNo) %>% do(plots=ggplot(data=.) + aes(x=MeasTimeMin, y=RFU) +  -->
 <!-- geom_point() +  -->
 <!-- geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) + -->
 <!-- ggtitle(mylabels[unique(.$SampleNo)], subtitle = lm_eq(.,.$MeasTimeMin,.$RFU))) -->
-
 <!-- print(r$plots) -->
-
-
 <!-- ## All together in a panel  -->
 <!-- # replicates together -->
 <!-- df %>% group_by(SampleNo) %>% ggplot(data=.) + -->
@@ -472,9 +503,6 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!--            geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) + -->
 <!-- #           ggtitle(mylabels[unique(.$SampleNo)], subtitle = lm_eq(.,.$MeasTimeMin,.$RFU)) + -->
 <!--    facet_wrap(~SampleNo, scales = "free") -->
-
-
-
 <!-- # replicates separately -->
 <!-- df %>% group_by(SampleNo, RepNo) %>% ggplot(data=.) + -->
 <!--          aes(x=MeasTimeMin, y=RFU) +  -->
@@ -482,59 +510,37 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!--            geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) + -->
 <!-- #           ggtitle(mylabels[unique(.$SampleNo)], subtitle = lm_eq(.,.$MeasTimeMin,.$RFU)) + -->
 <!--    facet_grid(SampleNo~RepNo, scales = "free") -->
-
-
-
 <!-- ``` -->
-
 <!-- ## Gradients -->
 <!-- ### So what next? What is the best quantitative value for comparisons? -->
-
 <!-- While it is nice to see the regression, what values are the best to compare for a robust quantitation? -->
 <!-- There are two the most obvious  possibilities: -->
-
 <!-- 1. Sum of all RFU values for each over the whole time range. -->
 <!-- 2. Fit a linear regression to the time course and use the gradient for quantitative comparison.   -->
-
 <!-- The former method is the simplest. -->
-
 <!-- The latter method shows all the details of the time course; Cas13a kinetics at fixed substrate concentration. The gradient is definitelly more robust than sum. But we have to check linearity RFU ~ time course.  -->
-
 <!-- Moreover, if the assay was well designed, and mesurement is taken above [S]>>Km, close to Vmax, perhaps we could calculate the tangent to plot dP/dt vs t like in: Claro, Enrique. (2000). Understanding initial velocity after derivatives of progress curves. Biochemistry and Molecular Biology Education. 28. 304-306? [link](https://www.sciencedirect.com/science/article/abs/pii/S1470817500000497) -->
-
-
 <!-- ```{r} -->
 <!-- colnames(df) -->
 <!-- lin <- df %>% group_by(SampleNo) %>% do(lm(.$RFU ~ .$MeasTimeMin,data=.) %>% coef() %>% as_tibble()) -->
 <!-- library("tidyr") -->
-
 <!-- lin$SampleNo <- as.numeric(factor(lin$SampleNo)) -->
 <!-- lin -->
-
 <!-- lin$lin_coef <- rep(c("a","b"),times=length(lin$SampleNo)/2) -->
 <!-- lin -->
-
 <!-- lin_wide <- lin %>% pivot_wider(., names_from=lin_coef, values_from=value)  -->
 <!-- lin_wide -->
-
-
 <!-- # Why are some x-axis labels hidden? -->
 <!-- # How to get x-axis labels replaced by someting more sensible - "mylabels" -->
 <!-- # see [link](https://www.tutorialspoint.com/why-scale-fill-manual-does-not-fill-the-bar-with-colors-created-by-using-ggplot2-in-r) -->
 <!-- # fill needs a factor -->
-
-
 <!-- ggplot(lin_wide, aes(x=SampleNo, y=b, fill=as.factor(SampleNo))) +  -->
 <!--   geom_bar(stat = "identity") + -->
 <!--   scale_fill_manual(name=name,labels=mylabels, values = mycolours) + -->
 <!--   labs(title = "The gradient of linear fit of RFU ~ time course", subtitle=mysubtitle) -->
-
-
-
 <!-- # The same plot coded in another way (base R)  -->
 <!-- op <- par(mar = c(8,4,4,2) + 0.1) ## default is c(5,4,4,2) + 0.1 -->
 <!-- op -->
-
 <!-- barplot(lin_wide$b, -->
 <!-- main = "The gradient of linear fit of RFU ~ time course", -->
 <!-- sub = mysubtitle, -->
@@ -545,53 +551,36 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!-- col = mycolours, -->
 <!-- horiz = FALSE) -->
 <!-- box() -->
-
 <!-- legend("topright",                                    # Add legend to barplot -->
 <!--        legend = mylabels, -->
 <!--        fill = mycolours) -->
-
-
-
 <!-- ``` -->
-
-
 <!-- ### When we take replicates individualy... -->
-
 <!-- ```{r} -->
 <!-- colnames(df) -->
 <!-- lin <- df %>% group_by(SampleNo, RepNo) %>% do(lm(.$RFU ~ .$MeasTimeMin,data=.) %>% coef() %>% as_tibble()) -->
 <!-- library("tidyr") -->
-
 <!-- lin$RepNo <- as.numeric(factor(lin$RepNo)) -->
 <!-- lin -->
-
 <!-- lin$lin_coef <- rep(c("a","b"),times=length(lin$RepNo)/2) -->
 <!-- lin -->
-
 <!-- lin_wide <- lin %>% pivot_wider(., names_from=lin_coef, values_from=value)  -->
 <!-- lin_wide -->
-
-
 <!-- # Why are some x-axis labels hidden? -->
 <!-- # How to get x-axis labels replaced by someting more sensible - "mylabels" -->
 <!-- # see [link](https://www.tutorialspoint.com/why-scale-fill-manual-does-not-fill-the-bar-with-colors-created-by-using-ggplot2-in-r) -->
 <!-- # fill needs a factor -->
-
-
 <!-- # plot replicate gradient -->
 <!-- ggplot(lin_wide, aes(x=SampleNo, y=b)) +  -->
 <!--   geom_bar(aes(fill=as.factor(RepNo)), stat = "identity", position = "dodge") + -->
 <!--   scale_fill_manual(name=name,labels=mylabels, values = mycolours) + -->
 <!-- labs(title = "The gradient of linear fit of RFU ~ time course", subtitle=mysubtitle) -->
-
-
 <!-- # boxplot is the best -->
 <!-- ggplot(lin_wide, aes(x=SampleNo, y=b)) +  -->
 <!--   geom_boxplot(aes(fill=SampleNo), outlier.shape = NA) + -->
 <!--   geom_jitter(aes(alpha=0.1)) + -->
 <!--   scale_fill_manual(name=name,labels=mylabels, values = mycolours) + -->
 <!--   labs(title = "The gradient of linear fit of RFU ~ time course", subtitle=mysubtitle) -->
-
 <!-- # And for comparison,  -->
 <!-- # what we get when we sum all the data withing replicates... -->
 <!-- ggplot(df, aes(x=SampleNo, y=RFU)) + -->
@@ -599,35 +588,23 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!--   scale_fill_manual(name=name,labels=mylabels, values = mycolours) + -->
 <!--     labs(title = "The sum of all data in RFU ~ time course", -->
 <!--          subtitle = mysubtitle) -->
-
-
 <!-- # box plot of sums -->
 <!-- s <- df%>% group_by(SampleNo, RepNo) %>% summarise(SmplSum=sum(RFU)) -->
-
 <!-- ggplot(s, aes(x=SampleNo, y=SmplSum)) +  -->
 <!--   geom_boxplot(aes(fill=SampleNo), outlier.shape = NA) + -->
 <!--   geom_jitter(aes(alpha=0.1)) + -->
 <!--   scale_fill_manual(name=name,labels=mylabels, values = mycolours) + -->
 <!--   labs(title = "The sum of all data in RFU ~ time course", subtitle=mysubtitle) -->
-
-
 <!-- ## What is the answer to what metrics is better, sum or gradient? THere is an obvious oulier in the positive control, that is clearly visible only when we calculate the regressions. But the linearity requirement is clearly more demanding on the data analysis.   -->
 <!-- ## The total sum of RFU values shows quite a different picture. It woudl help to analyze more data to see what is correct and practical. -->
-
-
 <!-- ``` -->
-
-
 <!-- ```{r include=FALSE, echo=FALSE, eval=FALSE} -->
 <!-- ## M-M kinetics is not relevant to this measurement -->
 <!-- library("nlstools") -->
 <!-- data(vmkm) -->
 <!-- nls1 <- nls(michaelis,vmkm,list(Km=1,Vmax=1)) -->
 <!-- plotfit(nls1, smooth = TRUE) -->
-
 <!-- ``` -->
-
-
 <!-- ### Plots of subsets of samples and conditions to compare -->
 <!--  Not used this time -->
 <!-- ```{r subsets, include=FALSE, echo=FALSE, eval=FALSE} -->
@@ -645,12 +622,9 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!-- #p6 <- df[df$SampleNo==13|df$SampleNo==14,] -->
 <!-- ## substrate and air -->
 <!-- #p7 <- df[df$SampleoN==15|df$SampleNo=="air",] -->
-
 <!-- myplots <- list("p1"=p1,"p2"=p2)#,"p3"=p3) -->
 <!-- class(myplots) -->
 <!-- str(myplots) -->
-
-
 <!-- ## LOESS regression -->
 <!-- for(p in myplots){ -->
 <!-- p <- as.data.frame(p) -->
@@ -677,6 +651,3 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 <!-- #  -->
 <!-- # -----------------   -->
 <!-- # ----------------- -->
-
-
-
