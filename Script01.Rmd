@@ -327,16 +327,9 @@ q+facet_grid(SampleNo~FracNo, scales = "fixed") +
 ggplot(data = df_long) +aes(x=FracNo, y=RFU)+ geom_col(aes(color=SampleNo))
 
  ```
-### Plotting activity as measured provides  fine details
-
- 
-
- 
 
 
-``` 
-
-### Observation: 
+### Observations 
 
 - The replicates are not exactly the same as for gene expression profile, despite the signal magnitude is reproducible. For that reason the most of the data do not fall into 95% the confidence intervals. 
 
