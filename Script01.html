@@ -457,12 +457,16 @@ ggplot(data = df_long) +aes(x=FracNo, y=RFU)+ geom_col(aes(color=SampleNo))</cod
 <div id="observations" class="section level3">
 <h3>Observations</h3>
 <ul>
-<li><p>The replicates are not exactly the same as for gene expression profile, despite the signal magnitude is reproducible. For that reason the most of the data do not fall into 95% the confidence intervals.</p></li>
+<li><p>Despite the signal magnitude is quite reproducible, we observe the differnet expression profiles among the replicates (of the same fraction). For that reason many data point do not fall into 95% the confidence intervals.</p></li>
 <li><p>Summing up averages hides the differences in the data - it is a general problem that many small values can hide a peak! For that reason, it seems better to sum the replicates, then take average/smooth with the other replicates.<br />
-This is an MS technique; when we trust our signal we acquire and sum up enough spectra to suppress the noise. Then we can take several of such measurements for error calculation.</p></li>
+There is a MS technique we use; when we trust our signal we acquire and sum up enough spectra to suppress the noise. Then we can take several of such measurements for error calculation.</p></li>
 <li><p>It is better to show the peaks in an array of plots than the sums.</p></li>
 <li><p>We can also observe and compare the individual replicates. They are not always exactly the same.</p></li>
 </ul>
+<hr />
+</div>
+<div id="some-more-playing-with-the-data" class="section level3">
+<h3>Some more playing with the data</h3>
 <pre class="r"><code>#head(df,10)
 head(df_long,10)
 library(&quot;dplyr&quot;)
